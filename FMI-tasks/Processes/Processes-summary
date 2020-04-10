@@ -1,0 +1,43 @@
+- 04-a-5000
+Намерете командите на 10-те най-стари процеси в системата.
+
+ps -eo pid,etime,cmd --sort start_time | head | tr -s ' ' | cut -d ' ' -f 4
+
+Намерете PID и командата на процеса, който заема най-много виртуална памет в системата.
+
+ps -eo pid,vsz,comm --sort=vsize | tail -n1|awk -F ' ' '{print $1,$2}'
+
+Изведете командата на най-стария процес
+
+ps -eo comm=,etime= --sort=start_time | head -n 1| tr -s ' ' | awk '{print $1}'
+
+-- 04-b-5000
+Намерете колко физическа памет заемат всички процеси на потребителската група root.
+ps -G root -o rss | awk '{total+=$1} END {print total}'
+
+-- 04-b-6100
+Изведете имената на потребителите, които имат поне 2 процеса, чиято команда е vim (независимо какви са аргументите й)
+
+ps -eo user,comm | sort | uniq -c | tr -s ' ' | awk '$3=="vi" && $1>1 {print $0}'
+
+-- 04-b-6200
+Изведете имената на потребителите, които не са логнати в момента, но имат живи процеси
+
+comm -12 <(ps -eo user | sort | uniq) <(grep -Fxvf <(who | tr -s ' ' | awk '{print $1}') <(cat /etc/passwd | awk -F':' '{print $1}')| sort)
+
+-- 04-b-7000
+Намерете колко физическа памет заемат осреднено всички процеси на потребителската група root. Внимавайте, когато групата няма нито един процес
+paste <(ps -g root -o rss= | awk '{sum+=$1} END {print sum}') <(ps -g root -o rss= | wc -l) | awk '{average=$1/$2} END {print average}'
+
+ps -e -g students -o rss= | awk '{m+=$1}END{OFMT="%.3f"; if(NR==0){print 0} else {print m/NR}}'
+
+-- 04-b-8000
+Намерете всички PID и техните команди (без аргументите), които нямат tty, което ги управлява. Изведете списък само с командите без повторения.
+ps -eo pid,comm,tty | grep '?'| awk '{print $2}'| sort| uniq
+ps -x -o pid -o comm | awk '{print $2}' | sort |uniq
+
+-- 04-b-9000
+Да се отпечатат PID на всички процеси, които имат повече деца от родителския си процес.
+
+
+
