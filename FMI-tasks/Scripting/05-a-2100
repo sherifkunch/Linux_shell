@@ -1,0 +1,7 @@
+Редактирайте вашия .bash_profile файл, за да ви поздравява (или да изпълнява някаква команда по ваш избор) всеки път, 
+когато влезете в системата.
+
+1. writre vim ~/.bashrc 
+2. add echo "Welcome Sherif" to the beggining of the file 
+3. restart the terminal
+
