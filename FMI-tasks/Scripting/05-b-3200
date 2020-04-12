@@ -2,3 +2,12 @@
 директория и извежда на стандартния изход подходящо
 съобщение за броя на всички файлове и всички директории в нея.
 
+#!/bin/bash
+
+read -p "Enter full directory path: " DIR_PATH
+
+DIR_NUMBER=$(find "$DIR_PATH" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l)
+echo "Number of directories: ${DIR_NUMBER}"
+FILE_NUMBER=$(find "$DIR_PATH" -maxdepth 1 -mindepth 1 -type f 2>/dev/null | wc -l)
+echo "Number of files: ${FILE_NUMBER}"                                      
+
