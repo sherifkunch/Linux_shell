@@ -1,0 +1,21 @@
+Направете си ваш псевдоним (alias) на полезна команда.
+
+Linux users often need to use one command over and over again.
+Typing or copying the same command again and again reduces your productivity and distracts
+you from what you are actually doing.
+
+You can save yourself some time by creating aliases for your most used commands. 
+Aliases are like custom shortcuts used to represent a command (or set of commands) executed with or without custom options. 
+Chances are you are already using aliases on your Linux system.
+
+You can see a list of defined aliases on your profile by simply executing alias command.
+Creating aliases is relatively easy and quick process. You can create two types of aliases – temporary ones and permanent
+
+To keep aliases between sessions, you can save them in your user’s shell configuration profile file. 
+This can be: Bash – ~/.bashrc
+
+Find a place in the file, where you want to keep the aliases. For example, you can add them in the end of the file. 
+For organizations purposes you can leave a comment before your aliases something like this:
+
+#My custom aliases
+alias getAll="ps -e"
