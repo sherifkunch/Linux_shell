@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#create script
+#This script creates a new bash script. sets permissions and more 
+#Author: Sherif Kunch
+
+#Is there an argument?
+
+if [ ! "${1}" ]; then
+	echo "Missing argument!"
+	exit 1
+fi
+
+script_name="${1}.sh"
+bin_dir="${HOME}/scripts"
+file_name="${bin_dir}/${script_name}"
+
+if [ -e $file_name ]; then
+	echo "File ${file_name} already exists"
+	exit 1
+fi
+
+if type "$script_name"; then
+	echo "There is alredy a command with name ${script_name}"
+	exit 1
+fi	
+
+#Check bin directory exists
+# -d checks if it is a direcory and ! not, so it if bin directory exists..
+
+if [ ! -d $bin_dir ]; then
+	#if not: create bin directory
+	if mkdir "$bin_dir"; then
+		echo "created ${bin_dir}"
+	else
+		echo "Could not create ${bin_dir}."
+		exit 1
+	fi	
+fi	
+
+# Create a script with a single line 
+echo '#!/bin/bash' > "$file_name"
+chmod u+x "$file_name"
+# Open with editor 
+if [ $EDITOR ]; then
+	$EDITOR "$file_name"
+else
+	echo "Script created; not starting editor because \$EDITOR is not set."
+fi
