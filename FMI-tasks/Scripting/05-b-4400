@@ -4,3 +4,42 @@
 Ако втората директория не е подадена по име, 
 нека да получи такова от днешната дата във формат, който ви е удобен.
 При желание новосъздадената директория да се архивира.
+
+#!/bin/bash
+if [ ! -d "${1}" ];then
+        echo "Directory doesn't exist! "
+        exit 1
+fi
+if [ $# -eq 0 ]; then
+        echo "Invalid number of arguments! "
+        exit 2
+fi
+FIRST_PATH="${1}"
+SECOND_PATH=""
+if [ $# -eq 2 ];then
+        SECOND_PATH="${2}"
+else
+        if [ $# -eq 1 ];then
+                SECOND_PATH="$(date +'%Y-%m-%d-%H-%M')"
+                mkdir "${SECOND_PATH}"
+        else
+                echo "Too many arguments"
+                exit 3
+        fi
+fi
+if [ ! -d "${SECOND_PATH}" ];then
+        echo "Second file is not a directory!"
+        exit 3
+fi
+fi
+if [ ! -d "${SECOND_PATH}" ];then
+        echo "Second file is not a directory!"
+        exit 3
+fi
+echo "Source directory: " "${FIRST_PATH}"
+echo "Destination directory: " "${SECOND_PATH}"
+echo -e "\nChanged files in the last 45 mins in Source directory: "
+
+find "${FIRST_PATH}" -maxdepth 1 -type f -mmin -45 -exec echo {} \;
+find "${FIRST_PATH}" -maxdepth 1 -type f -mmin -45 -exec cp {} "${SECOND_PATH}" \;
+echo -e "\nSuccessfully copying files\n"
