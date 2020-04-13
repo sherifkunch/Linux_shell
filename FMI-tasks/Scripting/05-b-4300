@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ ! $# -eq 2 ]; then
+       echo "Invalid number of arguments!"
+	exit 1
+fi
+
+if [ ! -e $1 ]; then 
+	echo "File doesn't exist"
+	exit 2
+fi
+
+read -p "Please enter the message:" message
+echo "${message}" | write $(cat "${1}" | grep -F "${2}" | cut -d" " -f2)
