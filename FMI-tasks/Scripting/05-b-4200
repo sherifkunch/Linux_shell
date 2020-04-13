@@ -21,3 +21,29 @@ int main(int argc, char *argv[]) {
 
 Изход:
 The deepest nesting is 2 levels
+
+#!/bin/bash
+if [ ! -e $1 ];then
+        echo "The file doesn't exist!"
+        exit 1
+fi
+
+if [ ! $# -eq 1 ];then
+        echo "Invalid number of argumuents"
+        exit 1
+fi
+CURRENT_COUNTER=0
+MAX_COUNTER=0
+DATA=$(cat "$1" | grep -o '.' | egrep "({|})" | tr "\n" " ")
+
+for i in $DATA;do
+        if [ $i = "{" ];then
+                CURRENT_COUNTER=$((CURRENT_COUNTER+1))
+                if [ "${CURRENT_COUNTER}" -gt "${MAX_COUNTER}" ];then
+                        MAX_COUNTER="${CURRENT_COUNTER}"
+                fi
+        else
+                CURRENT_COUNTER=$((CURRENT_COUNTER-1))
+        fi
+done
+echo "The deepest nesting is "${MAX_COUNTER}" levels"
