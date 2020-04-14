@@ -18,3 +18,29 @@ $ ./validint.sh 32 42 0; echo $?
 
 $ ./validint.sh asdf - 280; echo $?
 3
+#!/bin/bash 
+
+if [ "$#" -ne 3 ];then
+        #echo "Invalid number of arguments"
+        exit 4 
+fi
+
+if [ "$1" -le "$3" ] && [ "$1" -ge "$2" ];then
+        #echo "In interval"
+        exit 0
+fi
+
+if [ $2 -gt $3 ];then
+        #echo "Reversed intervals"
+        exit 2
+fi
+
+if [ "$1" -gt "$3" ] || [ "$1" -lt "$2" ];then
+        #echo "Not in interval"
+        exit 1
+fi
+
+if [ "$?" -eq 0 ]; then
+        #echo "At least one of the argunments is not an integer "
+        exit 3 
+fi
