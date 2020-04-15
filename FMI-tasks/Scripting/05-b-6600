@@ -1,5 +1,8 @@
 
-Да се напише shell скрипт, който получава единствен аргумент директория и изтрива всички повтарящи се (по съдържание) файлове в дадената директория. Когато има няколко еднакви файла, да се остави само този, чието име е лексикографски преди имената на останалите дублирани файлове.
+Да се напише shell скрипт, който получава единствен аргумент директория и 
+изтрива всички повтарящи се (по съдържание) файлове в дадената директория. 
+Когато има няколко еднакви файла, да се остави само този, чието име е 
+лексикографски преди имената на останалите дублирани файлове.
 
 Примери:
 $ ls .
@@ -10,3 +13,31 @@ $ ./rmdup .
 $ ls .
 f1 f2 f3 asdf
 # asdf2 е изтрит
+
+
+#!/bin/bash 
+
+if [ $# -ne 1 ];then
+	echo "Invalid number of arguments!"
+	exit 1 
+fi
+
+DIR="${1}"
+
+if [ ! -d "${DIR}" ]; then
+	echo "Dir doesnt't exits!"
+	exit 2
+elif [ ! -r "${DIR}" ];then
+	echo "Not readable!"
+	exit 3 
+fi
+
+HASHES=$(mktemp)
+#all the hashes 
+find "${DIR}" -maxdepth 1 -type f -printf "%f \n" 2>/dev/null | xargs md5sum 2>/dev/null | sort > "${HASHES}"
+
+# all the hashes are traversed one my one  
+cat "${HASHES}" | cut -d" " -f1 | uniq -d | while read LINE;do
+	grep "${LINE}" "${HASHES}" | awk '{print $2}' | tail -n +2 | xargs rm --
+done
+rm "$HASHES"
