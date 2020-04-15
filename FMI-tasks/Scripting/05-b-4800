@@ -4,3 +4,38 @@
 
 NB! Под 'копие' разбираме файл със същото съдържание.
 
+#!/bin/bash
+
+if [ ! "$#" -eq 2 ];then  
+	echo "Invalid number of agruments!"
+	exit 1 
+fi
+
+FILE=${1}
+DIR=${2}
+
+if [ ! -e "${FILE}" ]; then
+	echo "First argument is not a file!"
+	exit 2
+elif [ ! -r "${FILE}" ]; then
+	echo "File is not readable!"
+	exit 3
+fi
+
+if [ ! -d "${DIR}" ];then 
+	echo "Directory doesn't exist!"
+	exit 4
+elif [ ! -r "${DIR}" ]; then
+	echo "Dir is not readeble!" 
+	exit 5	
+fi
+
+(find "${DIR}" -type f -printf "%f \n")>temp.txt
+
+while read LINE;do
+	cmp -s "$LINE" "${FILE}"
+	if [ "$?" -eq 0 ];then
+		echo "${LINE}"
+	fi
+done<temp.txt
+
