@@ -26,3 +26,9 @@ $ cat table.html
     <td>GECKO 2</td>
   </tr>
 </table>
+
+#!/bin/bash
+
+#generating formatted html table 
+
+cat /etc/passwd | awk -F':' 'BEGIN { printf ("<table>\n\t<tr>\n\t\t<th>%s</th>\n\t\t<th>%s</th>\n\t\t<th>%s</th>\n\t\t<th>%s</th>""\n\t</tr>","Username","Group","Login shell","GECKO")} { printf ("\n\t\t<th>%s</th>\n\t\t<th>%s</th>\n\t\t<th>%s</th>\n\t\t<th>%s</th>""\n\t</tr>",$1,$4,$5,$7)} END { printf ("\n</table>\n")}'
