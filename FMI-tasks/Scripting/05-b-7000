@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ $# -eq 0 ];then
+	echo "At least one argument is needed!"
+	exit 1
+fi
+
+read -p "Please enter string: " str
+
+for FILE;do
+	if [ ! -f "${FILE}" ];then
+		echo "Input invalid fail!"
+		exit 2 
+	fi
+	fgrep "${str}" "${FILE}" | wc -l
+done
