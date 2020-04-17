@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ ! $# -eq 2 ];then
+	echo "Invalid number of parameters"
+       exit 1
+fi
+
+DIR_NAME="${1}"
+NUMBER="${2}"
+
+if [ ! -d "${DIR_NAME}" ]; then 
+	echo "First argument is not a dir"
+	exit 2
+elif [ ! -r "${DIR_NAME}" ]; then 
+	echo "Directory is not readable!"
+	exit 3 
+fi
+
+echo "${NUMBER}" | egrep -q '^[0-9]+$'
+
+if [ ! $? -eq 0 ]; then 
+	echo "Second argument is not an integer!"
+	exit 4
+fi
+
+find "${DIR_NAME}" -maxdepth 1 -mindepth 1 -type f -printf '%f %s \n' | awk '$2>'${NUMBER}' {print $1}'
