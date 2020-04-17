@@ -14,3 +14,49 @@ empty (0 entries)
 junk (1 entry)
 karh-pishtov.txt (8995979 bytes)
 scripts (10 entries)
+
+#!/bin/bash 
+
+[ $# -eq 0 ] && exit 0
+
+FIRST_ARG="${1}"
+INCLUDE_HIDDEN="NOT SET"
+
+if [ "${FIRST_ARG}" = -a ];then
+	INCLUDE_HIDDEN="-a"
+	shift 1 
+fi
+
+#[ $# -eq 0 ] && exit 0
+
+DIR="${1}"
+
+if [ ! -d "${DIR}" ];then
+	echo "Directroty doesn't exist!"
+	exit 2
+elif [ ! -r "${DIR}" ];then
+	echo "Directory is not readable!"
+	exit 3
+fi
+
+if [ "${INCLUDE_HIDDEN}" -eq -a ]; then
+	echo "Including hidden files:"
+	while read -d $'\n' LINE;do
+		BASE_NAME=$(basename "${LINE}")
+			if [ -f "${LINE}" ];then
+				echo "${BASE_NAME} ($(wc -c<"${i}") bytes)"
+			elif [ -d "${LINE}" ];then
+				echo "${BASE_NAME} ($(ls | wc -l) entries)"
+			fi
+	done < <(find . -maxdepth 1 -mindepth 1)	
+else
+	echo "Not including hidden files: "
+for i in "${DIR}"/*;do
+	BASE_NAME=$(basename "${i}")
+	if [ -f "${i}" ];then
+		echo "${BASE_NAME} ($(wc -c<"${i}") bytes)"
+	elif [ -d "${i}" ];then
+		echo "${BASE_NAME} ($(ls | wc -l) entries)"
+	fi
+done
+fi
