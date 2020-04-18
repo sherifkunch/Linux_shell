@@ -1,3 +1,17 @@
+#Да се напише shell скрипт, който приема параметър - име на потребител. 
+#Скриптът да прекратява изпълненито на всички текущо работещи процеси на дадения потребител,
+#и да извежда колко са били те.
+
+#Do not use kill -9
+#It does not give the process a chance to cleanly:
+#1) shut down socket connections
+#2) clean up temp files
+#3) inform its children that it is going away
+#4) reset its terminal characteristics and so on and so on.
+#Generally, send 15, and wait a second or two, and if that does not work, send 2, 
+#and if that does not work send 1. If that does not work, REMOVE THE BINARY because
+#the program is badly behaved!
+
 #!/bin/bash
 
 if [ ! $# -eq 1 ];then
