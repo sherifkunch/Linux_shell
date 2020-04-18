@@ -17,3 +17,41 @@ RIGHT! Guessed 5 in 5 tries!
 
 Hint: Един начин да направите рандъм число е с $(( (RANDOM % b) + a  )), 
 което ще генерира число в интервала [a, b]. Може да вземете a и b като параметри, но не забравяйте да направите проверката.
+
+#!/bin/bash 
+a=0
+b=20
+# [a..b] interval 
+RND=$(( (RANDOM % "${b}") + "${a}"  ))
+
+read -p "Guess? " NUMBER
+
+echo "${NUMBER}" | egrep -q '^[0-9]+$'
+
+if [ ! $? -eq 0 ];then 
+	echo "Not an integer! "
+	exit 1
+fi
+
+CNT=0
+while [ "${RND}" -ne "${NUMBER}" ];do
+	if [ "${NUMBER}" -gt "${RND}" ];then
+		echo "...smaller!"
+	elif [ "${NUMBER}" -lt "${RND}" ];then
+		echo "...bigger!"
+	fi	
+	read -p "Guess? " NUMBER
+
+	echo "${NUMBER}" | egrep -q '^[0-9]+$'
+
+	if [ ! $? -eq 0 ];then 
+		echo "Not an integer! "
+		exit 1
+	fi
+	CNT=$((CNT+1))
+done
+
+if [ "${NUMBER}" -eq "${RND}" ];then 
+	echo "RIGHT! Guessed "${RND}" in "${CNT}" tries!"
+	exit 0 
+f
