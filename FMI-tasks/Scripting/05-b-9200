@@ -15,3 +15,34 @@ $ cat $RMLOG_FILE
 [2018-04-01 13:12:00] Removed file f3
 [2018-04-01 13:12:00] Removed directory recursively mydir/
 [2018-04-01 13:12:00] Removed directory emptydir/
+
+#!/bin/bash 
+if [ $# -eq 0 ]; then
+	echo "At least one argument is needed!"
+	exit 1
+fi
+first_arg="${1}"
+FLAG=0
+if [ "${first_arg}" = -r ];then 
+	FLAG=1
+	shift 1 
+fi
+export LOGFILE=$(mktemp)
+for i; do
+	if [ -d "${i}" ]; then 
+		DIR_CONTENT=$(find "${i}" -maxdepth 1 2>/dev/null | wc -l)
+		if [ "${DIR_CONTENT}" -eq 0 ];then 
+			echo "[$(date +"%Y-%m-%d %H:%M:%S")] Removed directory "${i}" "	>> "${LOGFILE}"
+	       	       rm -d "${i}"
+       		elif [ "${FLAG}" -eq 1 ];then 
+	       		echo "[$(date +"%Y-%m-%d %H:%M:%S")] Removed directory recursively "${i}"" >> "${LOGFILE}"
+			rm -Rd "${i}"
+		fi
+	elif [ -f "${i}" ]; then 
+		echo " [$(date +"%Y-%m-%d %H:%M:%S")] Remove file "${i}"" >> "${LOGFILE}"
+		rm "${i}"
+	fi
+done
+echo "Log file info"
+cat "${LOGFILE}"
+
