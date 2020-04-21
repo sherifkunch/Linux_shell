@@ -7,3 +7,24 @@ Hint:
 За да сметнем нампример 24/7, можем да: echo "scale=2; 24/7" | bc
 Резултатът е 3.42 и има 2 знака след десетичната точка, защото scale=2.
 Алтернативно, при липса на bc ползвайте awk.
+
+#!/bin/bash 
+if [ ! $# -eq 1 ]; then
+	echo "Invalid number of arguments"
+	exit 1 
+fi
+USER="${1}"
+#one possible solution but without check if ther is divizion by 0 
+#sed 's/ /\//g' <(sed 's/^ *//g' <(ps -u sherif -o vsz= -o rss= |sort -rn| tr -s ' ')) | bc
+if ! id "${USER}" &>/dev/null; then
+	echo "Invalid user!"
+	exit 2 
+fi
+while read RSS VSZ;do
+	if [ $VSZ -eq 0 ]; then
+		DEPENDENCY="inf"
+	else
+		DEPENDENCY=$(echo "scale= 4; ${RSS}/${VSZ}"| bc)
+	fi
+	echo "${DEPENDENCY}"
+done < <(ps -u "${USER}" -o rss= -o vsz=)| sort -rn
