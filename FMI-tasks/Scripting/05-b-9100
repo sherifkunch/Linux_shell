@@ -3,3 +3,45 @@
 (За простота приемаме, че в имената на файловете може да се среща символът точка '.' максимум веднъж.)
 - за всяко "разширение" създава по една поддиректория на DESTINATION със същото име
 - разпределя спрямо "разширението" всички файлове от SOURCE в съответните поддиректории в DESTINATION
+
+#!/bin/bash 
+
+if [ ! $# -eq 2 ]; then 
+	echo "Invalid number of arguments!"
+	exit 1
+fi
+
+SOURCE="${1}"
+DESTINATION="${2}"
+
+if [ ! -d "${SOURCE}" ]; then
+       echo "Invalid SOURCE directory!"
+	exit 2       
+elif [ ! -d "${DESTINATION}" ]; then
+	echo "Invalid DESTINATION directory!"
+       exit 3 	
+fi
+
+if [ ! -r "${SOURCE}" ]; then
+       echo "SOURCE directory is not readable!"
+	exit 2       
+elif [ ! -r "${DESTINATION}" ]; then
+	echo "DESTINATION directory is not readable!"
+       exit 3 	
+fi
+
+while read extension; do
+	mkdir ${DESTINATION}/${extension}
+done< <(find ${SOURCE} -type f -printf "%f \n" | egrep -o "\..*"| tr -d '.' | sort | uniq)
+
+while read file_name; do
+	while read ext; do
+	if egrep -q "\.${ext}$" <<<"${file_name}" ;then
+	#another way 
+		#if [[ "${file_name}" =~ \.${ext}$ ]];then
+		#echo ""${file_name}" ends with "${ext}""
+			
+		cp "${SOURCE}/${file_name}" "${DESTINATION}/${ext}"
+	fi
+	done < <(find ${SOURCE} -type f -printf "%f \n" | egrep -o "\..*"|tr -d '.'| sort | uniq)
+done < <(ls "${SOURCE}")
