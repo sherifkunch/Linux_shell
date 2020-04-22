@@ -1,0 +1,45 @@
+#!/bin/bash 
+
+if [ ! $# -eq 1 ]; then 
+	echo Invalid number of arguments!
+	exit 1
+fi
+
+FIRST_ARG="${1}"
+
+if ! grep -qE '^-[rgbx]' <(echo "${FIRST_ARG}"); then
+	echo "Invalid color argument!"
+	exit 2 
+fi
+
+case "${FIRST_ARG}" in 
+	-r) counter=0;;
+	-g) counter=1;;
+	-b) counter=2;;
+	-x) counter=3;;
+esac
+
+if [ "${counter}" -eq 3 ];then
+	while read LINE;do
+		echo "${LINE}"
+	done
+	exit 0
+fi
+
+function change_color {
+NUMBER="${1}"
+STRING="${2}"
+REMAINDER=$((${NUMBER}%3))
+
+case "${REMAINDER}" in 
+	0) echo -e "\033[0;31m ${STRING}";;
+	1) echo -e "\033[0;32m ${STRING}";;
+	2) echo -e "\033[0;34m ${STRING}";;
+
+esac
+}
+
+while read LINE; do 
+	change_color ${counter} ${LINE}
+	counter=$((counter+1))
+done
