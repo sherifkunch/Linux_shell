@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ $# -eq 1 ];then 
+	first_arg="${1}"
+	destination_dir='.'
+		
+elif [ $# -eq 2 ]; then
+	first_arg="${1}"
+	destination_dir="${2}"
+else
+	echo"Invalid number of parameters!"
+	exit 1
+fi
+
+FLAG=0
+
+function files-to-restore-dates {
+paste <(ls "${BACKUP_DIR}" | egrep '*.t?gz$' | cut -d'_' -f1) <(ls "${BACKUP_DIR}" | egrep '*.t?gz$' | cut -d'_' -f2 | cut -d '.' -f1)
+}
+
+if [ ${first_arg} = -l ];then
+FLAG=1
+shift 1
+fi
+
+if [ "${FLAG}" -eq 1 ];then 
+files-to-restore-dates
+fi
+
+if [[ "${first_arg}" =~ .*\.gz$ ]]; then
+extension="gz"
+elif [[ "${first_arg}" =~ .*.tgz$ ]]; then
+extension="tgz"
+fi
+
+case $extension in 
+	gz) gzip -dc "${first_arg}" > "${destination_dir}"/$(basename "${first_arg}"| sed 's/\.gz$//');echo "DONE"
+	;;
+	tgz) tar zxf "${first_arg}" -C "${destination_dir}"
+	;;
+esac
