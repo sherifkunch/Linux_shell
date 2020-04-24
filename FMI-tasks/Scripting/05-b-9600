@@ -39,3 +39,40 @@ f1_2018-05-07-18-06-01.gz
 f2_2018-05-07-18-04-36.gz
 full-dir_2018-05-07-18-04-50.tgz
 empty-dir_2018-05-07-18-04-36.tgz
+
+#!/bin/bash 
+if [ $# -eq 0 ]; then
+	echo "At least one argument is needed!"
+	exit 1
+fi
+
+first_arg="${1}"
+FLAG=0
+if [ "${first_arg}" = -r ];then
+	FLAG=1
+	shift 1
+fi
+
+for i; do
+	if [ -d "${i}" ]; then 
+		DIR_CONTENT=$(ls "${i}"| wc -l)
+		if [ "${DIR_CONTENT}" -eq 0 ]; then 
+			echo "empty dir deliting..."
+			tar -czf "${BACKUP_DIR}/empty-dir_$(date +"%Y-%m-%d-%H-%M-%S").tgz" "${i}" 
+	       	      	rm -d "${i}"
+		
+		elif [ "${FLAG}" -eq 1 ];then
+		#direktoriqta ima failove v neq 
+			echo "deleting dir with files in it.."
+			tar -czf "${BACKUP_DIR}/full-dir_$(date +"%Y-%m-%d-%H-%M-%S").tgz" "${i}"
+			rm -r "${i}"
+		elif [ "${DIR_CONTENT}" -gt 0 ];then
+			echo "${i} contains files and cannot be deleted without parameter -r"	
+		fi
+	elif [ -f "${i}" ]; then 
+		#obiknoven fail
+		echo "deleting regular file"
+		gzip -c ${i} > "${BACKUP_DIR}/${i}_$(date +"%Y-%m-%d-%H-%M-%S").gz"
+		rm "${i}"
+	fi
+done
