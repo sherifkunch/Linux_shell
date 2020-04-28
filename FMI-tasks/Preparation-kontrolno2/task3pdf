@@ -22,28 +22,24 @@ while read FILE; do
 			echo "Directory a doesn't exitst..."
 			echo "Creating directory a..."
 			mkdir ~/scripts/task3test/a
-			mv "${FILE}" ~/scripts/task3test/a  
-		else
-			mv "${FILE}" ~/scripts/task3test/a 
 		fi
+		mv "${FILE}" ~/scripts/task3test/a 
+		
 	elif [ "${1}" -lt "${LINE_NUMBER}" -a "${2}" -gt "${LINE_NUMBER}" ]; then 
 		if [ ! -d ~/scripts/task3test/b ]; then 
 			echo "Directory b doesn't exitst..."
 			echo "Creating directory b..."
 			mkdir ~/scripts/task3test/b
-			mv "${FILE}" ~/scripts/task3test/b 
-		else
-			mv "${FILE}" ~/scripts/task3test/b
 		fi	
+		mv "${FILE}" ~/scripts/task3test/b
+			
 	else 
 		if [ ! -d ~/scripts/task3test/c ]; then 
 			echo "Directory c doesn't exitst..."
 			echo "Creating directory c..."
 			mkdir ~/scripts/task3test/c
-			mv "${FILE}" ~/scripts/task3test/c 
-		else
-			mv "${FILE}" ~/scripts/task3test/c 
-		fi
-
+		fi		
+		mv "${FILE}" ~/scripts/task3test/c 
+	
 	fi
 done < <(find . -maxdepth 1 -type f)
