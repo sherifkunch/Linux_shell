@@ -16,32 +16,33 @@ if [[ ! "${2}" =~ ^[0-9]+$ ]]; then
 fi
  
 while read FILE; do
-	if [ "${1}" -gt $(cat "${FILE}" | wc -l) ]; then
+	LINE_NUMBER=$(cat "${FILE}" | wc -l )
+	if [ "${1}" -gt "${LINE_NUMBER}" ]; then
 		if [ ! -d ~/scripts/task3test/a ]; then 
 			echo "Directory a doesn't exitst..."
 			echo "Creating directory a..."
 			mkdir ~/scripts/task3test/a
-			mv "${FILE}" a 
+			mv "${FILE}" ~/scripts/task3test/a  
 		else
-			mv "${FILE}" a 
+			mv "${FILE}" ~/scripts/task3test/a 
 		fi
-	elif [ "${1}" -lt $(cat "${FILE}" | wc -l) -a "${2}" -gt $(cat "${FILE}" | wc -l) ]; then 
+	elif [ "${1}" -lt "${LINE_NUMBER}" -a "${2}" -gt "${LINE_NUMBER}" ]; then 
 		if [ ! -d ~/scripts/task3test/b ]; then 
 			echo "Directory b doesn't exitst..."
 			echo "Creating directory b..."
 			mkdir ~/scripts/task3test/b
-			mv "${FILE}" b
+			mv "${FILE}" ~/scripts/task3test/b 
 		else
-			mv "${FILE}" b 
+			mv "${FILE}" ~/scripts/task3test/b
 		fi	
 	else 
 		if [ ! -d ~/scripts/task3test/c ]; then 
 			echo "Directory c doesn't exitst..."
 			echo "Creating directory c..."
 			mkdir ~/scripts/task3test/c
-			mv "${FILE}" c 
+			mv "${FILE}" ~/scripts/task3test/c 
 		else
-			mv "${FILE}" c 
+			mv "${FILE}" ~/scripts/task3test/c 
 		fi
 
 	fi
