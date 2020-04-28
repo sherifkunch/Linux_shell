@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ ! $# -eq 1 ]; then
+        echo Invalid number of arguments!
+        exit 1
+fi
+
+[ -d "${1}" -a -r "${1}" ] || { echo "Not a dir or not readable!"; exit 2; }
+
+
+while read FILE; do
+	if [ ! -e "${FILE}" ];then
+		echo "${FILE}"
+	fi
+done < <(find "${1}" -type l -printf '%l \n')
