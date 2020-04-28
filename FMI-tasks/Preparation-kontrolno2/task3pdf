@@ -1,0 +1,48 @@
+#!/bin/bash
+
+if [ ! $# -eq 2 ]; then 
+	echo Invalid number of arguments!
+	exit 1
+fi
+
+if [[ ! "${1}" =~ ^[0-9]+$ ]]; then
+	echo "Not an integer"
+	exit 3 
+fi
+
+if [[ ! "${2}" =~ ^[0-9]+$ ]]; then
+	echo "Not an integer"
+	exit 3 
+fi
+ 
+while read FILE; do
+	if [ "${1}" -gt $(cat "${FILE}" | wc -l) ]; then
+		if [ ! -d ~/scripts/task3test/a ]; then 
+			echo "Directory a doesn't exitst..."
+			echo "Creating directory a..."
+			mkdir ~/scripts/task3test/a
+			mv "${FILE}" a 
+		else
+			mv "${FILE}" a 
+		fi
+	elif [ "${1}" -lt $(cat "${FILE}" | wc -l) -a "${2}" -gt $(cat "${FILE}" | wc -l) ]; then 
+		if [ ! -d ~/scripts/task3test/b ]; then 
+			echo "Directory b doesn't exitst..."
+			echo "Creating directory b..."
+			mkdir ~/scripts/task3test/b
+			mv "${FILE}" b
+		else
+			mv "${FILE}" b 
+		fi	
+	else 
+		if [ ! -d ~/scripts/task3test/c ]; then 
+			echo "Directory c doesn't exitst..."
+			echo "Creating directory c..."
+			mkdir ~/scripts/task3test/c
+			mv "${FILE}" c 
+		else
+			mv "${FILE}" c 
+		fi
+
+	fi
+done < <(find . -maxdepth 1 -type f)
