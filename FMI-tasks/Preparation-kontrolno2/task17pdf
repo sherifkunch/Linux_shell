@@ -1,0 +1,40 @@
+#!/bin/bash
+
+if [ ! $# -eq 1 ]; then 
+	echo Invalid number of arguments!
+	exit 1
+fi
+[ $(id -u) -eq 0 ] || { echo "Not a root user!"; exit 2; }
+
+USER_NAME="${1}"
+
+grep -q "${USER_NAME}" <(ps -e -o user= | sort | uniq)
+
+if [ ! $? -eq 0 ];then
+	echo "No such username!"
+	exit 3
+fi
+
+USERS="$(ps -e -o user= | sort | uniq)"
+
+USERS_COUNT="$(ps -e -o user= | sort | uniq| wc -l)"
+
+for USER in $USERS; do
+	if [ $(ps -u "${USER_NAME}" | wc -l) -lt $(ps -u "${USER}" | wc -l) ]; then
+		echo "${USER}"
+	fi
+	CURRENT_SUM=$(ps -u "${USER}" -o etimes=| tr -d ' ' | tr -s '\n' '+' | rev |cut -c2- | bc)
+	TOTAL_SUM=$((${CURRENT_SUM}+TOTAL_SUM))
+done
+
+AVG_TIME=$(("${TOTAL_SUM}"/"${USERS_COUNT}"))
+DOUBLE_AVG=$(($AVG_TIME*2))
+echo "AVG time is: ${TOTAL_SUM}/${USERS_COUNT}=${AVG_TIME}"
+
+while read PID ELAPSED_TIME; do
+	if [ $ELAPSED_TIME -gt $DOUBLE_AVG ]; then
+		kill -s TERM "${PID}"
+		sleep 2 
+		kill -s KILL "${PID}"
+	fi
+done< <(ps -u "${USER_NAME}" -o pid=,etimes= | tr -s ' '| sed 's/^ *//g')
