@@ -1,0 +1,16 @@
+#!/bin/bash
+
+[ $# -eq 3 ] || { echo "Invalid number of arguments!"; exit 1; }
+
+SRC="${1}"
+DST="${2}"
+ABC="${3}"
+
+[ $(id -u) -eq 0 ] || { echo "Try again as a root user!"; exit 2; }
+[ -r "${SRC}" ] || { echo "Directory "${SRC}" is not readable!"; exit 3; }
+[ -r "${DST}" ] || { echo "Directory "${DST}" is not readable!"; exit 4; }
+
+while read LINE;do
+	echo "Moving $LINE in $DST!"
+	mv -t "${LINE}" "${DST}" 
+done< <(find "${SRC}" -type f | grep "${ABC}")
