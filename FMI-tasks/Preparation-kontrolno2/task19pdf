@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ $# -eq 1 ]; then 
+	if [ ! -d "${1}" ]; then
+		echo "First arg must be directory!"
+		exit 1
+	fi
+	find "${1}" -type l -exec test -e {} \; -print
+elif [ $# -eq 2 ]; then
+	echo "${2}" | egrep -q '^[0-9]+$' 
+	if [ ! $? -eq 0 ];then
+		echo "Expected integer as a second arugument!"
+		exit 2
+	fi
+	while read NUMBER_OF_HARDLINKS FILE_NAME;do
+		if [ "${NUMBER_OF_HARDLINKS}" -ge "${2}" ];then
+			echo "${FILE_NAME}"
+		fi
+	done< <(find "${1}" -type f -printf '%n %f\n')
+else
+	echo Invalid number of arguments!
+	exit 3
+fi
