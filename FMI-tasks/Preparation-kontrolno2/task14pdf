@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [ ! $# -eq 1 ]; then 
+	echo Invalid number of arguments!
+	exit 1
+fi
+
+echo "${1}" | egrep -q '^[0-9]+$'
+
+if [ ! $? -eq 0 ]; then
+	echo "Not a number!"
+	exit 2 
+fi
+
+[ $(id -u) -eq 0 ] || { echo "Not a root user!"; exit 3; }
+
+USERS=$(ps -e -o user= | sort | uniq) 
+
+for USER in $USERS; do
+	TOTAL_RSS=0
+	while read RSS PID ;do
+		TOTAL_RSS=$((TOTAL_RSS+${RSS}))	
+		PID_WITH_BIGGEST_RSS="${PID}"
+	done < <(ps -u ${USER} -o rss=,pid= | sort -n)
+	if [ "${TOTAL_RSS}" -gt "${1}" ]; then 
+		kill -s TERM "${PID_WITH_BIGGEST_RSS}"
+	fi
+done
