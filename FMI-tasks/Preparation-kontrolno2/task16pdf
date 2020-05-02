@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ ! $# -eq 3 ]; then 
+	echo Invalid number of arguments!
+	exit 1
+fi
+
+FILE_NAME="${1}"
+STRING1="${2}"
+STRING2="${3}"
+
+[ -e "${FILE_NAME}" ] || exit 2;
+[ -r "${FILE_NAME}" ] || exit 3;
+
+STR1_VAL="$(grep "${STRING1}=" "${FILE_NAME}" | cut -d '=' -f2 | tr -s ' ' '\n')"
+STR2_VAL="$(grep "${STRING2}=" "${FILE_NAME}" | cut -d '=' -f2 | tr -s ' ' '\n')"
+
+while read SYMBOL;do
+	while read SYMBOL2;do
+		if [ "${SYMBOL2}" = ${SYMBOL} ]; then 
+			SYMBOLS_TO_REMOVE="${SYMBOL2}"
+			LINE=$(grep "${STRING2}=" ${FILE_NAME})
+			sed -i "/${LINE}/s/${SYMBOLS_TO_REMOVE} //" z1.txt
+		fi
+	done< <(echo "${STR2_VAL}")
+done< <(echo "${STR1_VAL}")
