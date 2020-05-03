@@ -1,11 +1,12 @@
 #!/bin/bash
+[ $(id -u) -eq 0 ] || { echo "Not a root user!"; exit 1; }
 
 while read USER_NAME DIR; do
 	if [ -r "${DIR}" ];then 
 		echo "$USER_NAME"
 		
-		var=$(find "${DIR}" -type f 2>/dev/null -printf '%T@ %f\n' | sort -n -t ' ' -k1|tail -n 1 | cut -d ' ' -f2)
-		echo "recently modified file in "${DIR}" is ${var}"
+		MOD_FILE=$(find "${DIR}" -type f 2>/dev/null -printf '%T@ %p\n' | sort -n -t ' ' -k1|tail -n 1 | cut -d ' ' -f2)
+		echo "recently modified file in "${DIR}" is $MOD_FILE"
 	else
 		echo "Directory ${DIR} is not readable!"
 	fi
