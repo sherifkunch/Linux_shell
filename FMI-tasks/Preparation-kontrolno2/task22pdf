@@ -1,0 +1,34 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then 
+	echo At least one argument is needed!
+	exit 1
+fi
+DIR_TO_SEARCH="${1}"
+
+[ -d "${DIR_TO_SEARCH}" ] || { echo "First argument must be directory!"; exit 2; }
+
+function PROCESS_SYMLINKS {
+	while read SRC DST;do
+		if [ -e "${DST}" ];then
+			echo "${SRC} -> ${DST}"
+		fi
+	done < <(ls "${1}" -al | grep '\->' | tr -s ' ' | cut -d ' ' -f 9,10,11 | sed 's/->//g' | tr -s ' ')
+	echo "Broken symlinks: $(find -L "${1}" -type l 2>/dev/null | wc -l)"
+}
+
+
+if [ $# -eq 1 ]; then
+	PROCESS_SYMLINKS "${DIR_TO_SEARCH}"
+elif [ $# -eq 2 ]; then
+	FILE="${2}"
+	[ -f "${2}" ] || { echo "Second argument must be file!"; exit 3; }
+
+	if [ -e "${FILE}" ]; then
+		PROCESS_SYMLINKS "${DIR_TO_SEARCH}" > "${FILE}"
+	else
+		echo "FILE: "${FILE}" doesn't exist!"
+	fi
+else 
+	echo "Invalid number of arguments!"
+fi
