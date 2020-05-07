@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ ! $# -eq 2 ]; then
+        echo Invalid number of arguments!
+        exit 1
+fi
+
+FILE_1="${1}"
+FILE_2="${2}"
+if [ ! -e "${FILE_2}" ]; then
+        touch "${FILE_2}"
+fi
+[ -e "${FILE_1}" ] || { echo "File ${FILE_1} doesn't exist"; exit 1; }
+[ -e "${FILE_2}" ] || { echo "File ${FILE_2} doesn't exist"; exit 1; }
+
+while read NUMB LINE;do
+        if [ "${NUMB}" -eq 1 ]; then
+                grep "${LINE}" "${FILE_1}" >> "${FILE_2}"
+        elif [ "${NUMB}" -gt 1 ]; then
+                grep "${LINE}" "${FILE_1}" | sort -n | head -n1 >> "${FILE_2}"
+        fi
+done < <(sed 's/^[0-9]*//g' "${FILE_1}" | sort | uniq -c | tr -s ' ' | sed 's/^ *//g')
