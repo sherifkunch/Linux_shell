@@ -1,0 +1,18 @@
+#!/bin/bash
+
+tmp=$(mktemp)
+tmp_result=$(mktemp)
+MAX_SUM=0
+egrep '^(0?|-?[1-9]+)$' >> tmp
+while read LINE;do
+	if [ "$(echo "${LINE}" | egrep -o '[0-9]+' | egrep -o . | wc -l )" -ge 2 ];then 
+	
+		if [ "${MAX_SUM}" -le "$(echo "${LINE}" | egrep -o '[0-9]+' | sed 's/./\0\+/g' | sed '$s/+$//' | bc)" ];then 
+		 MAX_SUM="$(echo "${LINE}" | egrep -o '[0-9]+' | sed 's/./\0\+/g' | sed '$s/+$//' | bc)" 
+		fi
+		echo "${MAX_SUM} ${LINE}" >>tmp_result
+	fi	
+done< <(cat tmp| sort -n |uniq )
+cat tmp_result | sort -n | tail -n 1 | cut -d ' ' -f2
+rm tmp
+rm tmp_result
