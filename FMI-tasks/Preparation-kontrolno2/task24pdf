@@ -1,0 +1,23 @@
+#!/bin/bash
+
+OLD_IFS="${IFS}"
+IFS=":"
+[ $(id -u) -eq 0 ] || { echo "Enter as root user!"; exit 1; }
+
+TOTAL_RSS_ROOT="$(ps -u "root" -o rss= | awk '{s+=$1}END{print s}')" 
+echo "$TOTAL_RSS_ROOT"
+
+while read USER HOME_DIR; do
+	if [ ! $(id -u ${USER}) -eq 0 ] || [ ! -d "${HOME_DIR}" ] || [ $(stat -u ${HOME_DIR}) != ${USER} ] || [ ! "$(stat -c '%A' ${HOME_DIR}) | cut -c3)" = "w" ]; then 
+	
+TOTAL_RSS_USER="$(ps -u "${USER}" -o rss= | awk '{s+=$1}END{print s}')" 
+echo "total rss for user is : ${TOTAL_RSS_USER}"
+		if [ "${TOTAL_RSS_ROOT}" -gt "${TOTAL_RSS_USER}" ]; then	#killall -u "${USER}"
+			#sleep 2
+	echo "i am going to delete"
+			#	killall -u "${USER}" -s SIGKILL
+		fi
+	fi
+done< <(cat /etc/passwd | cut -d ':' -f1,6)
+
+IFS="${OLD_IFS}"
