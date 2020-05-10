@@ -10,7 +10,14 @@ ABC="${3}"
 [ -r "${SRC}" ] || { echo "Directory "${SRC}" is not readable!"; exit 3; }
 [ -r "${DST}" ] || { echo "Directory "${DST}" is not readable!"; exit 4; }
 
+
+DIR_NAME=$(dirname "${0}")
 while read LINE;do
-	echo "Moving $LINE in $DST!"
-	mv -t "${LINE}" "${DST}" 
-done< <(find "${SRC}" -type f | grep "${ABC}")
+	BASE_NAME=$(basename "${LINE}")
+	dir_name=$(dirname "${LINE}")
+	if [ ! -d "${DST}"/"${dir_name}" ]; then
+		mkdir -p "${DST}"/"${dir_name}"
+	fi
+	cp "${LINE}" "${DST}"/"${dir_name}"/"${BASE_NAME}"
+
+done< <(find ${SRC} -type f -name '*'"${ABC}"'*' 2>/dev/null)
