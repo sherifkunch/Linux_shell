@@ -1,0 +1,11 @@
+#!/bin/bash
+
+tmp=$(mktemp)
+
+egrep '^(0?|-?[1-9]+)$' >> tmp 
+while read LINE;do
+	if [ "$(echo "${LINE}" | egrep -o '[0-9]+')" -eq "$(cat tmp | sort -n | uniq | tail -n 1 | egrep -o '[0-9]+')" ]; then	
+		echo "result: ${LINE}"
+	fi
+done< <(cat tmp| sort -n |uniq )
+rm tmp
