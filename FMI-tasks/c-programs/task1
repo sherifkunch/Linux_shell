@@ -1,1 +1,37 @@
 
+//kopiraite sadarjanieto na file1 vav file2 
+
+#include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <err.h>
+#include <sys/types.h> 
+#include <sys/stat.h>
+
+int main(int argc, char* argv[])
+{
+	int fd1;
+	int fd2;
+	char c;
+	if (argc > 1){
+		
+	if ( (fd1 = open(argv[1], O_RDONLY) ) == -1 ){
+		err(1,"File failed to open in read mode\n");
+		exit(-1);
+	}
+ 
+	if ( (fd2 = open(argv[2], O_CREAT | O_WRONLY, S_IWUSR | S_IRUSR) ) == -1){
+		err(2,"File failed to open in write mode\n");
+		close(fd1);
+		exit(-1);
+	}
+
+	while(read(fd1, &c, 1)){
+		write(fd2, &c, 1);
+	}
+	
+	close(fd1);
+	close(fd2);
+	}
+	exit(0);
+}
