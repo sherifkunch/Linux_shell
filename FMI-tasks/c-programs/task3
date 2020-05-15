@@ -1,0 +1,38 @@
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <err.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char* argv[]){
+
+	int fd1;
+	int words=0;
+	int lines=0;
+	int bytes=0;
+	char c; 
+	if(argc != 2){
+		fprintf(stderr,"Invalid number of arguments!\n");
+		exit(1);
+	}
+
+	if((fd1 = open(argv[1], O_RDONLY) )== -1){
+		fprintf(stderr, "Operation open failed\n");
+		exit(1);
+	}	
+	while(read(fd1,&c,1) > 0){
+		if(c == ' '){
+			words++;
+		}
+		if(c == '\n'){
+			lines++;
+			words++;
+		}
+			bytes++;
+	}
+	printf("%s %d %d %d\n",argv[1],lines,words,bytes);
+	//printf("File %s has:\n%d number of lines.\n%d number of words\n%d number of bytes.\n",argv[1],lines,words,bytes);	
+	close(fd1);
+}
