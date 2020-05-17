@@ -1,0 +1,44 @@
+//Реализирайте команда swap, разменяща съдържанието на два файла, подадени като входни параметри.
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main(int argc,char* argv[]){
+	int fd1;
+	int fd2;
+	char bf1;
+	char bf2;
+
+	if(argc != 3){
+		fprintf(stderr,"Invalid number of arguments!\n");
+		exit(1);
+	}
+	if((fd1 = open(argv[1],O_RDWR)) == -1){
+		fprintf(stderr,"Opening fd1 failed!\n");
+		exit(1);
+	}
+	if((fd2 = open(argv[2],O_RDWR)) == -1){
+		//err(2,"Opening f2 failed!\n");
+		close(fd1);
+		fprintf(stderr,"Opening fd2 failed!\n");
+		exit(2);
+	}
+	while( (read(fd1,&bf1,1)) > 0  && (read(fd2,&bf2,1)) > 0 ){
+		lseek(fd1,-1,SEEK_CUR);	
+		lseek(fd2,-1,SEEK_CUR);
+		write(fd1,&bf2,1);
+		write(fd2,&bf1,1);
+	} 
+	
+//chetesh ot file 1 v bufer 1, chetesh v file2 v bufer 2 i zapisvam ot buff2 vav file 1 i obratnoto
+//s lseek vrushtam kursora s edin na file1 bait nazad 
+//i togava zapisvam po edin bait ot dvata bufera 
+//
+	close(fd1);
+	close(fd2);
+	exit(0);
+}
