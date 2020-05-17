@@ -1,0 +1,38 @@
+//* Реализирайте команда cp, работеща с произволен брой подадени входни параметри
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main(int argc, char* argv[]){
+	
+	int fda;
+	int fdb;
+	char c;
+
+	if(argc == 1){
+		fprintf(stderr,"Invalid number of arguments!\n");
+		exit(1);
+	}
+	for(int i=1; i < argc; i++){
+		if((fda = open(argv[i],O_RDONLY)) == -1){
+			fprintf(stderr,"Opening fda %i went wrong\n",i);
+			exit(2);
+		}
+		i++;
+		if((fdb = open(argv[i],O_WRONLY | O_CREAT, S_IRUSR)) == -1){
+			fprintf(stderr,"Opening fdb went wrong\n");
+			close(fda);
+                        exit(3);
+		}
+		while(read(fda,&c,1) > 0){
+			write(fdb,&c,1);
+		}
+	}
+	close(fda);
+	close(fdb);
+	exit(0);
+}
