@@ -1,0 +1,68 @@
+#include <unistd.h>
+#include <err.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+
+int cmp(const void*a,const void*b){
+	return *((unsigned char*)a) - *((unsigned char*)b);
+}
+
+int main(int argc, const char** argv){
+
+	if ( argc != 3 ){
+		errx(2,"Invalid number of arguments!");
+	}
+
+	int fd1;
+	if((fd1 = open(argv[1], O_RDONLY)) == -1){
+		err(1,"Cannot open fd1");
+	}
+	struct stat st;
+	if(stat(argv[1], &st) == -1)
+	{	
+		err(4,"Unable to stat!");
+	}
+	int fd2;
+	if ((fd2 = open(argv[2],O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)) == -1){
+		err(3,"Cannot open fd2");
+	}
+	if(st.st_size == 0){
+		close(fd1);
+		close(fd2);
+		exit(0);
+	}
+	void *buf = malloc(st.st_size);
+	if(!buf){
+		int olderrno = errno;
+		close(fd1);
+		close(fd2);
+		errno=olderrno;
+		err(6,"no memory");
+	}
+	if(read(fd1,buf,st.st_size) != st.st_size){
+		int olderrno = errno;
+		close(fd1);
+		close(fd2);
+		errno=olderrno;
+		err(5,"error while reading files");	
+	}
+	
+	qsort(buf,st.st_size,1,cmp);
+	
+	if(write(fd2,buf,st.st_size) != st.st_size){
+		int olderrno = errno;
+		close(fd1);
+		close(fd2);
+		errno=olderrno;
+		err(7,"error while writing files");	
+	}
+
+	free(buf);
+	close(fd1);
+	close(fd2); 	 
+	exit(0);
+}
