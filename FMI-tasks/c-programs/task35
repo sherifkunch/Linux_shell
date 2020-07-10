@@ -1,0 +1,85 @@
+#include <unistd.h>
+#include <err.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <errno.h>
+
+
+struct triple_t{
+	uint16_t displacement;
+	uint8_t old;
+	uint8_t new;
+}inst;
+
+int main(int argc, const char* argv[]){
+
+	if(argc!=4){
+		errx(1,"Invalid number of arguments!");
+	}
+
+	struct stat st1;
+	struct stat st2; 
+	if(stat(argv[1],&st1) == -1){
+		err(2,"Canno stat f1.bin");
+	}
+	if(st1.st_size % sizeof(uint8_t) != 0){
+		err(3,"Invalid file size");
+	}	
+	if(stat(argv[2],&st2) == -1){
+		err(2,"Canno stat f2.bin");
+	}
+	if(st2.st_size % sizeof(uint8_t) != 0){
+		err(3,"Invalid file size");
+	}	
+	if(st1.st_size != st2.st_size){
+		errx(6,"files %s and %s are not consistent", argv[1],argv[2]);
+	}
+	int fd1 = -1; 
+	if ((fd1 = open(argv[1],O_RDWR)) == -1 ){
+		err(4,"Cannot open");
+	}
+	int fd2 = -1; 
+	if ((fd2 = open(argv[2],O_RDWR)) == -1 ){
+		const int olderrno = errno;
+		close(fd1);
+		errno = olderrno;
+		err(5,"Cannot open");
+	}
+
+	ssize_t fd_p = open(argv[3],O_CREAT | O_RDWR | O_TRUNC ,S_IRUSR| S_IWUSR | S_IRGRP);
+	if(fd_p == -1 ){
+		const int olderrno = errno;
+		close(fd1);
+		close(fd2);
+		errno = olderrno;
+		err(5,"Cannot open %s", argv[3]);
+	}
+	uint8_t buf1,buf2;
+	uint16_t cnt = 0x0;
+	while(read(fd1,&buf1,sizeof(buf1)) == sizeof(buf1) && read(fd2,&buf2,sizeof(buf2) == sizeof(buf2))){
+		if(buf1 != buf2){
+			inst.displacement = cnt; 
+			inst.old = buf1;
+			inst.new = buf2; 
+			ssize_t wr = write(fd_p,&inst,sizeof(inst));
+			if(wr == -1 || wr != sizeof(inst)){
+				const int olderrno = errno;
+				close(fd1);
+				close(fd2);
+				close(fd_p);
+				errno = olderrno;
+				err(9,"Error while writing to file %s", argv[3]);
+			}	
+		}
+		cnt++;
+	}	
+	
+	close(fd1);
+	close(fd2);
+	close(fd_p);
+	exit(0);
+}
