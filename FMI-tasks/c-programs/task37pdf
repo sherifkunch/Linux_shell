@@ -1,0 +1,135 @@
+#include <unistd.h>
+#include <stdlib.h>
+#include <err.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdint.h>
+
+struct triple_t {
+
+	uint16_t displacement;
+	uint8_t old;
+	uint8_t new;
+};
+
+int main(int argc, const char** argv){
+
+	if(argc != 4) {
+		errx(1,"invalid numb of args");
+	}
+	struct stat st;
+	if((stat(argv[1],&st)) == -1 ){
+		err(4,"Cannot stat");
+	}
+	off_t file_size = st.st_size;
+	if(file_size % sizeof(uint8_t) != 0){
+		err(5,"Invalid file size of argv[1]!");
+	}
+	struct stat st2;
+	if((stat(argv[2],&st2)) == -1 ){
+		err(4,"Cannot stat f2");
+	}
+	off_t file_size2 = st2.st_size;
+	if(file_size2 % sizeof(struct triple_t) != 0){
+		err(5,"Invalid file size of argv[1]!");
+	}
+
+	int fd1patch; 
+	if ((fd1patch = open(argv[1],O_RDWR)) == -1){	
+		err(2,"%s expected!", argv[1]);
+	}
+	int fd2;
+	if((fd2=open(argv[2],O_RDWR)) == -1){
+		const int olderrno = errno;
+		close(fd1patch);
+		errno = olderrno;
+		err(3,"%s expected!", argv[2]);
+	}
+
+	int fd3;
+	if((fd3 = open(argv[3],O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR)) == -1 ){
+		const int olderrno = errno;
+		close(fd1patch);
+		close(fd2);
+		errno=olderrno;
+		err(6,"cannot open %s ",argv[3]);
+	}
+	char a;
+	ssize_t check1 =0; 
+	ssize_t check2 =0;
+
+	while(((check1 = read(fd2,&a,sizeof(a))) > 0)){
+		check2 = write(fd3,&a,sizeof(a));
+	}	
+		
+						
+	if(check1 != 0 ){
+		const int olderrno = errno;
+                close(fd1patch);
+                close(fd2);
+		close(fd3);
+                errno=olderrno;
+                err(6,"reading %s went wrong",argv[2]);
+	}
+	if(check2 != check1 ){
+		const int olderrno = errno;
+                close(fd1patch);
+                close(fd2);
+		close(fd3);
+                errno=olderrno;
+                err(6,"writing %s went wrong",argv[3]);
+
+	}
+
+	struct triple_t inst;
+	
+	int x;
+	while((x = read(fd1patch,&inst,sizeof(inst))) == sizeof(inst)){
+		if(lseek(fd2,inst.displacement,SEEK_SET) == -1){
+			const int olderrno = errno;
+               		close(fd1patch);
+               		close(fd2);
+               	 	close(fd3);
+                	errno=olderrno;
+               		err(6,"reading went wrong!");
+		}
+		ssize_t read_b;
+		if((read_b = read(fd2,&x,sizeof(x))) == 1 ){
+			if(inst.old == x){
+				if(lseek(fd3,inst.displacement,SEEK_SET) == -1)       {
+					
+			const int olderrno = errno;
+               		close(fd1patch);
+               		close(fd2);
+               	 	close(fd3);
+                	errno=olderrno;
+               		err(6,"reading went wrong!");
+				}
+				if(write(fd3,&inst.new,sizeof(inst.new))!= 1 ){
+
+			const int olderrno = errno;
+               		close(fd1patch);
+               		close(fd2);
+               	 	close(fd3);
+                	errno=olderrno;
+               		err(6,"reading went wrong!");
+				}	
+			}
+		}
+	}
+	if(x != 0){
+			const int olderrno = errno;
+               		close(fd1patch);
+               		close(fd2);
+               	 	close(fd3);
+                	errno=olderrno;
+               		err(6,"reading went wrong!");
+		}
+	close(fd1patch);
+	close(fd2);
+	close(fd3);
+	exit(0);
+}
