@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdio.h>
 
 struct triple_t {
 
@@ -38,11 +39,11 @@ int main(int argc, const char** argv){
 	}
 
 	int fd1patch; 
-	if ((fd1patch = open(argv[1],O_RDWR)) == -1){	
+	if ((fd1patch = open(argv[1],O_RDONLY)) == -1){	
 		err(2,"%s expected!", argv[1]);
 	}
 	int fd2;
-	if((fd2=open(argv[2],O_RDWR)) == -1){
+	if((fd2=open(argv[2],O_RDONLY)) == -1){
 		const int olderrno = errno;
 		close(fd1patch);
 		errno = olderrno;
@@ -61,10 +62,16 @@ int main(int argc, const char** argv){
 	ssize_t check1 =0; 
 	ssize_t check2 =0;
 
-	while(((check1 = read(fd2,&a,sizeof(a))) > 0)){
-		check2 = write(fd3,&a,sizeof(a));
+	while((check1 = read(fd2,&a,sizeof(a))) > 0){
+		if((check2 = write(fd3,&a,check1))!=check1){
+			const int olderrno = errno;
+                	close(fd1patch);
+                	close(fd2);
+			close(fd3);
+                	errno=olderrno;
+                	err(6,"writing inside if %s went wrong",argv[2]);
+		}
 	}	
-		
 						
 	if(check1 != 0 ){
 		const int olderrno = errno;
@@ -74,7 +81,9 @@ int main(int argc, const char** argv){
                 errno=olderrno;
                 err(6,"reading %s went wrong",argv[2]);
 	}
-	if(check2 != check1 ){
+
+	printf("check1 is %ld\n",check1);		
+/*	if(check2 != check1 ){
 		const int olderrno = errno;
                 close(fd1patch);
                 close(fd2);
@@ -82,11 +91,11 @@ int main(int argc, const char** argv){
                 errno=olderrno;
                 err(6,"writing %s went wrong",argv[3]);
 
-	}
+	}*/
 
 	struct triple_t inst;
 	
-	int x;
+	uint8_t x;
 	while((x = read(fd1patch,&inst,sizeof(inst))) == sizeof(inst)){
 		if(lseek(fd2,inst.displacement,SEEK_SET) == -1){
 			const int olderrno = errno;
